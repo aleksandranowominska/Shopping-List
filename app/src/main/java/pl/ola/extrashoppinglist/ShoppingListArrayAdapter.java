@@ -22,8 +22,8 @@ import java.util.List;
  */
 
 public class ShoppingListArrayAdapter extends ArrayAdapter<Item> {
-    public ShoppingListArrayAdapter(@NonNull Context context, @IdRes int textViewResourceId, @NonNull List<Item> objects) {
-        super(context, textViewResourceId, objects);
+    public ShoppingListArrayAdapter(@NonNull Context context, @NonNull List<Item> objects) {
+        super(context, 0, objects);
     }
 
 
@@ -46,9 +46,8 @@ public class ShoppingListArrayAdapter extends ArrayAdapter<Item> {
         deleteItemCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton myCheckbox, boolean b) {
-//                Log.d("olka", "onCheckedChanged: " + MainActivity.items.get(position).itemName + " " + position + " mycheckbox tag " + myCheckbox.getTag());
-                Toast.makeText(getContext(), MainActivity.items.get(position).itemName + " has been removed", Toast.LENGTH_SHORT).show();
-                MainActivity.items.remove(position);
+                DataManager dataManager = DataManager.getInstance(getContext());
+                dataManager.removeItem(position);
                 notifyDataSetChanged();
             }
         });
