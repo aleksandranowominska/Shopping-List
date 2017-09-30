@@ -1,6 +1,7 @@
 package pl.ola.extrashoppinglist;
 
 import android.content.Context;
+import android.media.MediaPlayer;
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
@@ -27,6 +28,7 @@ public class ShoppingListArrayAdapter extends ArrayAdapter<Item> {
     }
 
 
+
     @NonNull
     @Override
     public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
@@ -34,6 +36,8 @@ public class ShoppingListArrayAdapter extends ArrayAdapter<Item> {
             LayoutInflater inflater = LayoutInflater.from(getContext());
             convertView = inflater.inflate(R.layout.single_item_cell, null);
         }
+
+        final MediaPlayer mp = MediaPlayer.create(getContext(), R.raw.notification_sound);
 
         Item item = getItem(position);
         TextView itemNameTextView = (TextView) convertView.findViewById(R.id.item_name);
@@ -46,6 +50,7 @@ public class ShoppingListArrayAdapter extends ArrayAdapter<Item> {
         deleteItemCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton myCheckbox, boolean b) {
+                mp.start();
                 DataManager dataManager = DataManager.getInstance(getContext());
                 dataManager.removeItem(position);
                 notifyDataSetChanged();
