@@ -33,6 +33,10 @@ public class DataManager {
         return items;
     }
 
+    public Item getItemFromPosition(int position){
+        return items.get(position);
+    }
+
     public void addItem(Item item) {
         items.add(item);
         writeToSharedPreferences();

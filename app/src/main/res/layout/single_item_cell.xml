@@ -9,6 +9,9 @@
         android:layout_marginLeft="15dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:clickable="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
         android:text="item to buy"
         android:textSize="25dp"/>
     <CheckBox
@@ -16,6 +19,7 @@
         android:layout_alignParentRight="true"
         android:layout_marginRight="10dp"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:focusable="false"/>
 
 </RelativeLayout>
