@@ -6,8 +6,10 @@ package pl.ola.extrashoppinglist;
 
 public class Item {
     public String itemName;
+    public String itemDescription;
 
     public Item (String itemName){
         this.itemName = itemName;
+        this.itemDescription = "";
     }
 }

@@ -1,9 +1,14 @@
 package pl.ola.extrashoppinglist;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +20,7 @@ public class DataManager {
     private static DataManager instance;
     private SharedPreferences sharedPreferences;
     private static List<Item> items = new ArrayList<Item>();
+    Gson gson;
 
     public static DataManager getInstance(Context context){
         if (instance == null) {
@@ -25,12 +31,18 @@ public class DataManager {
 
     private DataManager(Context context) {
         sharedPreferences =  PreferenceManager.getDefaultSharedPreferences(context);
+        gson = new Gson();
         items = readDataFromSharedPreferences();
 
     }
 
     public List<Item> getItems() {
         return items;
+    }
+
+    public void updateItem(int position, Item item){
+        items.set(position, item);
+        writeToSharedPreferences();
     }
 
     public Item getItemFromPosition(int position){
@@ -48,22 +60,19 @@ public class DataManager {
     }
 
     private void writeToSharedPreferences(){
+        String itemsToSave = gson.toJson(items);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.clear();
-        editor.putInt("size", items.size());
-        for (int i = 0; i < items.size(); i++ ) {
-            editor.putString(i + "", items.get(i).itemName + "");
-        }
+        editor.putString("itemsList", itemsToSave);
         editor.apply();
     }
 
     private List<Item> readDataFromSharedPreferences(){
-        int size = sharedPreferences.getInt("size", 0);
-        List<Item> savedItems = new ArrayList<Item>();
-        for (int i=0; i<size; i++){
-            String s = sharedPreferences.getString(i+"", "EMPTY ITEM");
-            savedItems.add(new Item(s));
+        String itemsToRead = sharedPreferences.getString("itemsList", null);
+        if (itemsToRead == null){
+            return new ArrayList<>();
         }
+        Type type = new TypeToken<List<Item>>() {}.getType();
+        List<Item> savedItems = gson.fromJson(itemsToRead, type);
         return savedItems;
     }
 }
