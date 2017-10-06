@@ -59,6 +59,7 @@
             android:textSize="25dp"
             android:focusable="true"
             android:focusableInTouchMode="true"
+            android:clickable="true"
             android:visibility="invisible"/>
     </RelativeLayout>
 

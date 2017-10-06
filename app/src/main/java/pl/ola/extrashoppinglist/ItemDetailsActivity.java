@@ -1,6 +1,8 @@
 package pl.ola.extrashoppinglist;
 
+import android.app.AlarmManager;
 import android.app.DatePickerDialog;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.media.MediaPlayer;
@@ -13,6 +15,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import java.sql.Time;
 import java.text.SimpleDateFormat;
@@ -175,8 +178,21 @@ public class ItemDetailsActivity extends AppCompatActivity implements DatePicker
     public void onTimeSet(TimePicker timePicker, int hour, int minute) {
         reminderCalendar.set(Calendar.HOUR_OF_DAY, hour);
         reminderCalendar.set(Calendar.MINUTE, minute);
+        reminderCalendar.set(Calendar.SECOND, 0);
         item.itemReminderDate = reminderCalendar.getTime();
         dataManager.updateItem(position, item);
         updateUI();
+        setAlarm(item.itemReminderDate);
+    }
+
+    public void setAlarm(Date date){
+        Intent myIntent = new Intent(this , ReminderService.class);
+        AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
+        PendingIntent pendingIntent = PendingIntent.getService(this, 0, myIntent, 0);
+
+        SimpleDateFormat dateFormat =  new SimpleDateFormat("dd/MM/yyyy");
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+        alarmManager.set(AlarmManager.RTC_WAKEUP, date.getTime(), pendingIntent);
+        Toast.makeText(this, "Alarm set on "+ dateFormat.format(date)+" for "+ timeFormat.format(date), Toast.LENGTH_SHORT).show();
     }
 }
