@@ -187,6 +187,8 @@ public class ItemDetailsActivity extends AppCompatActivity implements DatePicker
 
     public void setAlarm(Date date){
         Intent myIntent = new Intent(this , ReminderService.class);
+        myIntent.putExtra("itemName", item.itemName);
+        myIntent.putExtra("itemDescription", item.itemDescription);
         AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
         PendingIntent pendingIntent = PendingIntent.getService(this, 0, myIntent, 0);
 
