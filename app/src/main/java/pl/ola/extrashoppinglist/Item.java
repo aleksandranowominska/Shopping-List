@@ -16,4 +16,13 @@ public class Item {
         this.itemDescription = "";
         this.itemReminderDate = null;
     }
+
+    @Override
+    public String toString() {
+        return "Item{" +
+                "itemName='" + itemName + '\'' +
+                ", itemDescription='" + itemDescription + '\'' +
+                ", itemReminderDate=" + itemReminderDate +
+                '}';
+    }
 }

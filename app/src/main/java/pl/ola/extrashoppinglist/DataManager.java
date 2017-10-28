@@ -75,4 +75,5 @@ public class DataManager {
         List<Item> savedItems = gson.fromJson(itemsToRead, type);
         return savedItems;
     }
+
 }

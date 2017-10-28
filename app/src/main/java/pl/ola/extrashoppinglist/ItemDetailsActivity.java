@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.media.MediaPlayer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -24,6 +25,7 @@ import java.util.Date;
 
 public class ItemDetailsActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
     public static final String ITEM_POSITION = "ITEM_POSITION";
+    private static final String TAG = "olka";
 
     EditText itemNameEditText;
     EditText itemDescriptionEditText;
@@ -48,6 +50,7 @@ public class ItemDetailsActivity extends AppCompatActivity implements DatePicker
         dataManager = DataManager.getInstance(this);
         position = intent.getIntExtra(ITEM_POSITION, 0);
         item = dataManager.getItemFromPosition(position);
+        Log.d(TAG, "activity onCreate: position"+position +" item" + item);
         reminderCalendar = Calendar.getInstance();
         if (item.itemReminderDate != null){
             reminderCalendar.setTime(item.itemReminderDate);
@@ -185,16 +188,17 @@ public class ItemDetailsActivity extends AppCompatActivity implements DatePicker
         setAlarm(item.itemReminderDate);
     }
 
+
     public void setAlarm(Date date){
         Intent myIntent = new Intent(this , ReminderService.class);
-        myIntent.putExtra("itemName", item.itemName);
-        myIntent.putExtra("itemDescription", item.itemDescription);
+        myIntent.putExtra(ITEM_POSITION, position);
         AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
-        PendingIntent pendingIntent = PendingIntent.getService(this, 0, myIntent, 0);
+        PendingIntent pendingIntent = PendingIntent.getService(this, position, myIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         SimpleDateFormat dateFormat =  new SimpleDateFormat("dd/MM/yyyy");
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
         alarmManager.set(AlarmManager.RTC_WAKEUP, date.getTime(), pendingIntent);
         Toast.makeText(this, "Alarm set on "+ dateFormat.format(date)+" for "+ timeFormat.format(date), Toast.LENGTH_SHORT).show();
+        Log.d("olka", "Alarm set on "+ dateFormat.format(date)+" for "+ timeFormat.format(date)+ " for POSITION: " + position);
     }
 }

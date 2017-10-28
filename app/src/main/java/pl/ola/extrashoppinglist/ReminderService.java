@@ -10,6 +10,9 @@ import android.support.annotation.IntDef;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import static android.content.ContentValues.TAG;
+import static pl.ola.extrashoppinglist.ItemDetailsActivity.ITEM_POSITION;
+
 public class ReminderService extends Service {
     private static final int NOTIFICATION = 2;
 
@@ -22,24 +25,38 @@ public class ReminderService extends Service {
     }
 
 
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        String itemName = (String) intent.getExtras().get("itemName");
-        String itemDescription = (String) intent.getExtras().get("itemDescription");
+        Log.d("olka", "onStartCommand: started service");
+
+        if (intent == null) {
+            return super.onStartCommand(intent, flags, startId);
+        }
+
+        DataManager dataManager = DataManager.getInstance(this);
+        int position = intent.getIntExtra(ITEM_POSITION, 0);
+        Item item = dataManager.getItemFromPosition(position);
+
+        Log.d("olka", "position: "+ position + " item: "+ item);
+
+
 
         Notification myNotification = new NotificationCompat.Builder(this)
-                .setContentTitle("Item to buy: " + itemName)
-                .setContentText(itemDescription)
+                .setContentTitle("Item to buy: " + item.itemName)
+                .setContentText(item.itemDescription)
                 .setSmallIcon(R.drawable.ic_notifications_active_black_24dp)
+                .setAutoCancel(true)
                 .build();
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
-        Intent myIntent = new Intent(this, MainActivity.class);
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, myIntent, 0);
+        Intent myIntent = new Intent(this, ItemDetailsActivity.class);
+        myIntent.putExtra(ITEM_POSITION, position);
+        Log.d("olka", "onStartCommand: intent extra: "+myIntent.getIntExtra(ITEM_POSITION, -1));
+
+        PendingIntent contentIntent = PendingIntent.getActivity(this, position, myIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         myNotification.contentIntent = contentIntent;
-        notificationManager.notify(NOTIFICATION, myNotification);
+        notificationManager.notify(position, myNotification);
 
         return super.onStartCommand(intent, flags, startId);
     }
