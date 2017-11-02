@@ -24,7 +24,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class ItemDetailsActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
-    public static final String ITEM_POSITION = "ITEM_POSITION";
+    public static final String ITEM_ID = "ITEM_ID";
     private static final String TAG = "olka";
 
     EditText itemNameEditText;
@@ -33,7 +33,6 @@ public class ItemDetailsActivity extends AppCompatActivity implements DatePicker
     TextView itemReminderHourTextView;
     DataManager dataManager;
     Item item;
-    int position;
     Calendar reminderCalendar;
 
 
@@ -48,9 +47,9 @@ public class ItemDetailsActivity extends AppCompatActivity implements DatePicker
         itemReminderHourTextView = (TextView) findViewById(R.id.item_reminder_hour);
         Intent intent = getIntent();
         dataManager = DataManager.getInstance(this);
-        position = intent.getIntExtra(ITEM_POSITION, 0);
-        item = dataManager.getItemFromPosition(position);
-        Log.d(TAG, "activity onCreate: position"+position +" item" + item);
+        int itemId = intent.getIntExtra(ITEM_ID, 0);
+        item = dataManager.getItemById(itemId);
+        Log.d(TAG, "activity onCreate: id "+itemId +" item" + item);
         reminderCalendar = Calendar.getInstance();
         if (item.itemReminderDate != null){
             reminderCalendar.setTime(item.itemReminderDate);
@@ -92,7 +91,7 @@ public class ItemDetailsActivity extends AppCompatActivity implements DatePicker
         itemDescriptionEditText.setText(newItemDescription);
         item.itemDescription = newItemDescription;
 
-        dataManager.updateItem(position, item);
+        dataManager.updateItem(item);
 
     }
 
@@ -160,7 +159,7 @@ public class ItemDetailsActivity extends AppCompatActivity implements DatePicker
     public void onDateSet(DatePicker datePicker, int year, int month, int dayOfMonth) {
         reminderCalendar.set(year, month, dayOfMonth);
         item.itemReminderDate = reminderCalendar.getTime();
-        dataManager.updateItem(position, item);
+        dataManager.updateItem(item);
         updateUI();
 
     }
@@ -183,7 +182,7 @@ public class ItemDetailsActivity extends AppCompatActivity implements DatePicker
         reminderCalendar.set(Calendar.MINUTE, minute);
         reminderCalendar.set(Calendar.SECOND, 0);
         item.itemReminderDate = reminderCalendar.getTime();
-        dataManager.updateItem(position, item);
+        dataManager.updateItem(item);
         updateUI();
         setAlarm(item.itemReminderDate);
     }
@@ -191,14 +190,14 @@ public class ItemDetailsActivity extends AppCompatActivity implements DatePicker
 
     public void setAlarm(Date date){
         Intent myIntent = new Intent(this , ReminderService.class);
-        myIntent.putExtra(ITEM_POSITION, position);
+        myIntent.putExtra(ITEM_ID, item.itemId);
         AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
-        PendingIntent pendingIntent = PendingIntent.getService(this, position, myIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getService(this, item.itemId, myIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         SimpleDateFormat dateFormat =  new SimpleDateFormat("dd/MM/yyyy");
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
         alarmManager.set(AlarmManager.RTC_WAKEUP, date.getTime(), pendingIntent);
         Toast.makeText(this, "Alarm set on "+ dateFormat.format(date)+" for "+ timeFormat.format(date), Toast.LENGTH_SHORT).show();
-        Log.d("olka", "Alarm set on "+ dateFormat.format(date)+" for "+ timeFormat.format(date)+ " for POSITION: " + position);
+        Log.d("olka", "Alarm set on "+ dateFormat.format(date)+" for "+ timeFormat.format(date)+ " for ID: " + item.itemId);
     }
 }

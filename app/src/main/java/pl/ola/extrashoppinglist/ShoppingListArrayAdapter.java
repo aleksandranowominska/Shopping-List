@@ -22,7 +22,7 @@ import android.widget.Toast;
 import java.util.List;
 
 import static android.content.Context.ALARM_SERVICE;
-import static pl.ola.extrashoppinglist.ItemDetailsActivity.ITEM_POSITION;
+import static pl.ola.extrashoppinglist.ItemDetailsActivity.ITEM_ID;
 
 /**
  * Created by Aleksandra Kusiak on 27.09.2017.
@@ -45,7 +45,7 @@ public class ShoppingListArrayAdapter extends ArrayAdapter<Item> {
 
         final MediaPlayer mediaPlayer = MediaPlayer.create(getContext(), R.raw.notification_sound);
 
-        Item item = getItem(position);
+        final Item item = getItem(position);
         TextView itemNameTextView = (TextView) convertView.findViewById(R.id.item_name);
         CheckBox deleteItemCheckbox = (CheckBox) convertView.findViewById(R.id.item_checkbox);
 
@@ -56,10 +56,10 @@ public class ShoppingListArrayAdapter extends ArrayAdapter<Item> {
         deleteItemCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton myCheckbox, boolean b) {
-                cancelAlarm(position);
+                cancelAlarm(item.itemId);
                 mediaPlayer.start();
                 DataManager dataManager = DataManager.getInstance(getContext());
-                dataManager.removeItem(position);
+                dataManager.removeItem(item.itemId);
                 notifyDataSetChanged();
             }
         });
@@ -68,11 +68,11 @@ public class ShoppingListArrayAdapter extends ArrayAdapter<Item> {
     }
 
 
-    public void cancelAlarm(int position){
+    public void cancelAlarm(int itemId){
         Intent myIntent = new Intent(getContext() , ReminderService.class);
-        myIntent.putExtra(ITEM_POSITION, position);
+        myIntent.putExtra(ITEM_ID, itemId);
         AlarmManager alarmManager = (AlarmManager)getContext().getSystemService(ALARM_SERVICE);
-        PendingIntent pendingIntent = PendingIntent.getService(getContext(), position, myIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getService(getContext(), itemId, myIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         alarmManager.cancel(pendingIntent);
     }

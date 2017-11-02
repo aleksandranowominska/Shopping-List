@@ -10,11 +10,13 @@ public class Item {
     public String itemName;
     public String itemDescription;
     public Date itemReminderDate;
+    public int itemId;
 
     public Item (String itemName){
         this.itemName = itemName;
         this.itemDescription = "";
         this.itemReminderDate = null;
+        this.itemId = 0;
     }
 
     @Override
@@ -23,6 +25,7 @@ public class Item {
                 "itemName='" + itemName + '\'' +
                 ", itemDescription='" + itemDescription + '\'' +
                 ", itemReminderDate=" + itemReminderDate +
+                ", itemId=" + itemId +
                 '}';
     }
 }

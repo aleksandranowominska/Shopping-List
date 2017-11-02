@@ -11,7 +11,7 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import static android.content.ContentValues.TAG;
-import static pl.ola.extrashoppinglist.ItemDetailsActivity.ITEM_POSITION;
+import static pl.ola.extrashoppinglist.ItemDetailsActivity.ITEM_ID;
 
 public class ReminderService extends Service {
     private static final int NOTIFICATION = 2;
@@ -35,10 +35,10 @@ public class ReminderService extends Service {
         }
 
         DataManager dataManager = DataManager.getInstance(this);
-        int position = intent.getIntExtra(ITEM_POSITION, 0);
-        Item item = dataManager.getItemFromPosition(position);
+        int itemId = intent.getIntExtra(ITEM_ID, 0);
+        Item item = dataManager.getItemById(itemId);
 
-        Log.d("olka", "position: "+ position + " item: "+ item);
+        Log.d("olka", "id: "+ itemId + " item: "+ item);
 
 
 
@@ -51,12 +51,12 @@ public class ReminderService extends Service {
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         Intent myIntent = new Intent(this, ItemDetailsActivity.class);
-        myIntent.putExtra(ITEM_POSITION, position);
-        Log.d("olka", "onStartCommand: intent extra: "+myIntent.getIntExtra(ITEM_POSITION, -1));
+        myIntent.putExtra(ITEM_ID, itemId);
+        Log.d("olka", "onStartCommand: intent extra: "+myIntent.getIntExtra(ITEM_ID, -1));
 
-        PendingIntent contentIntent = PendingIntent.getActivity(this, position, myIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, itemId, myIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         myNotification.contentIntent = contentIntent;
-        notificationManager.notify(position, myNotification);
+        notificationManager.notify(itemId, myNotification);
 
         return super.onStartCommand(intent, flags, startId);
     }

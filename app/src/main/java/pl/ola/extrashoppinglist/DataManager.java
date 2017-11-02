@@ -20,6 +20,7 @@ public class DataManager {
     private static DataManager instance;
     private SharedPreferences sharedPreferences;
     private static List<Item> items = new ArrayList<Item>();
+    private static int lastItemId = 0;
     Gson gson;
 
     public static DataManager getInstance(Context context){
@@ -40,22 +41,42 @@ public class DataManager {
         return items;
     }
 
-    public void updateItem(int position, Item item){
-        items.set(position, item);
-        writeToSharedPreferences();
+    public void updateItem(Item item){
+        int position = getItemPositionById(item.itemId);
+        if (position != -1) {
+            items.set(position, item);
+            writeToSharedPreferences();
+        }
     }
 
-    public Item getItemFromPosition(int position){
-        return items.get(position);
+    public int getItemPositionById(int itemId){
+        for (int i = 0; i < items.size(); i++){
+            if (items.get(i).itemId == itemId){
+                return i;
+            }
+        }
+        return  -1;
+    }
+
+    public Item getItemById(int itemId){
+       for (Item item: items){
+           if (item.itemId == itemId){
+               return item;
+           }
+       }
+       return null;
     }
 
     public void addItem(Item item) {
+        lastItemId = lastItemId + 1;
+        item.itemId = lastItemId;
         items.add(item);
         writeToSharedPreferences();
     }
 
-    public void removeItem(int position){
-        items.remove(position);
+    public void removeItem(int itemId){
+        Item itemToRemove = getItemById(itemId);
+        items.remove(itemToRemove);
         writeToSharedPreferences();
     }
 
@@ -63,11 +84,13 @@ public class DataManager {
         String itemsToSave = gson.toJson(items);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("itemsList", itemsToSave);
+        editor.putInt("latsItemId", lastItemId);
         editor.apply();
     }
 
     private List<Item> readDataFromSharedPreferences(){
         String itemsToRead = sharedPreferences.getString("itemsList", null);
+        lastItemId = sharedPreferences.getInt("lastItemId", 0);
         if (itemsToRead == null){
             return new ArrayList<>();
         }

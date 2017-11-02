@@ -16,7 +16,8 @@ import android.widget.Toast;
 
 import java.util.Date;
 
-import static pl.ola.extrashoppinglist.ItemDetailsActivity.ITEM_POSITION;
+import static pl.ola.extrashoppinglist.ItemDetailsActivity.ITEM_ID;
+
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "Olka";
@@ -48,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
                     dataManager.addItem(new Item(itemToAdd));
                     adapter.notifyDataSetChanged();
                     addItem.setText("");
+
                     return true;
                 }
                 return false;
@@ -58,7 +60,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent = new Intent(MainActivity.this, ItemDetailsActivity.class);
-                intent.putExtra(ITEM_POSITION, i);
+                Item item = adapter.getItem(i);
+                intent.putExtra(ITEM_ID, item.itemId);
                 startActivity(intent);
             }
         });
