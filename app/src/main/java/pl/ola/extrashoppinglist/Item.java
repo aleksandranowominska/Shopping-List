@@ -11,12 +11,14 @@ public class Item {
     public String itemDescription;
     public Date itemReminderDate;
     public int itemId;
+    public boolean isItemStarred;
 
     public Item (String itemName){
         this.itemName = itemName;
         this.itemDescription = "";
         this.itemReminderDate = null;
         this.itemId = 0;
+        this.isItemStarred = false;
     }
 
     @Override
@@ -26,6 +28,7 @@ public class Item {
                 ", itemDescription='" + itemDescription + '\'' +
                 ", itemReminderDate=" + itemReminderDate +
                 ", itemId=" + itemId +
+                ", isItemStarred=" + isItemStarred +
                 '}';
     }
 }

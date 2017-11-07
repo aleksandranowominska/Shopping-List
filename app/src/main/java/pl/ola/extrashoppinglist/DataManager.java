@@ -21,6 +21,7 @@ public class DataManager {
     private SharedPreferences sharedPreferences;
     private static List<Item> items = new ArrayList<Item>();
     private static int lastItemId = 0;
+    private static boolean isItemStarred = false;
     Gson gson;
 
     public static DataManager getInstance(Context context){
@@ -85,12 +86,14 @@ public class DataManager {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("itemsList", itemsToSave);
         editor.putInt("latsItemId", lastItemId);
+        editor.putBoolean("isItemStarred", isItemStarred);
         editor.apply();
     }
 
     private List<Item> readDataFromSharedPreferences(){
         String itemsToRead = sharedPreferences.getString("itemsList", null);
         lastItemId = sharedPreferences.getInt("lastItemId", 0);
+        isItemStarred = sharedPreferences.getBoolean("isItemStarred", false);
         if (itemsToRead == null){
             return new ArrayList<>();
         }
