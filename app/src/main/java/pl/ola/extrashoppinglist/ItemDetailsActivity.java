@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.media.MediaPlayer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -84,11 +86,9 @@ public class ItemDetailsActivity extends AppCompatActivity implements DatePicker
 
     public void saveItemDetails(){
         String newItemName = itemNameEditText.getText().toString();
-        itemNameEditText.setText(newItemName);
         item.itemName = newItemName;
 
         String newItemDescription = itemDescriptionEditText.getText().toString();
-        itemDescriptionEditText.setText(newItemDescription);
         item.itemDescription = newItemDescription;
 
         dataManager.updateItem(item);
@@ -103,43 +103,44 @@ public class ItemDetailsActivity extends AppCompatActivity implements DatePicker
     }
 
     private void saveEditedItemName(){
-        itemNameEditText.setOnEditorActionListener(new EditText.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                saveItemDetails();
 
-                    return true;
-                }
-                return false;
-            }
-        });
-        itemNameEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        itemNameEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onFocusChange(View view, boolean b) {
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
                 saveItemDetails();
             }
         });
+
     }
 
     private void saveEditedItemDescription(){
-        itemDescriptionEditText.setOnEditorActionListener(new EditText.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
 
-                    saveItemDetails();
-                    return true;
-                }
-                return false;
-            }
-        });
-        itemDescriptionEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        itemDescriptionEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onFocusChange(View view, boolean b) {
-               saveItemDetails();
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                saveItemDetails();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
             }
         });
+
     }
 
     private void saveReminderDate(){
