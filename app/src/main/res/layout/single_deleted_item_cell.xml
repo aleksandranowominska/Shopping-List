@@ -21,6 +21,7 @@
         android:focusable="false"
         android:focusableInTouchMode="false"
         android:text="item to buy"
+        android:textColor="#95a5a6"
         android:textSize="25dp"/>
 
 </RelativeLayout>

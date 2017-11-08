@@ -4,6 +4,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Paint;
 import android.media.MediaPlayer;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -46,6 +47,7 @@ public class DoneListArrayAdapter extends ArrayAdapter {
 
 
         itemNameTextView.setText(deletedItem.itemName);
+        itemNameTextView.setPaintFlags(itemNameTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
         // check box
         deleteItemCheckbox.setOnCheckedChangeListener(null);
         deleteItemCheckbox.setChecked(false);
