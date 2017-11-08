@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         itemsListView.setAdapter(shoppingListArrayAdapter);
         doneListArrayAdapter = new DoneListArrayAdapter(this, dataManager.getDeletedItems());
         deletedItemsListView.setAdapter(doneListArrayAdapter);
+        deletedItemsListView.setVisibility(View.GONE);
 
         sortUpButton = (ImageView) findViewById(R.id.sort_up);
         sortDownButton = (ImageView) findViewById(R.id.sort_down);
@@ -129,7 +130,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
 
             case R.id.deleted_items_text_view:
-                Toast.makeText(this, "Load deleted items list", Toast.LENGTH_SHORT).show();
+                if (deletedItemsListView.getVisibility() == View.VISIBLE){
+                    deletedItemsListView.setVisibility(View.GONE);
+                }
+                else {
+                    deletedItemsListView.setVisibility(View.VISIBLE);
+                }
                 break;
 
             default:

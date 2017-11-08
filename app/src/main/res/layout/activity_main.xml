@@ -24,6 +24,8 @@
         android:id="@+id/deleted_items_text_view"
         android:layout_below="@+id/shopping_list"
         android:text="Deleted Items"
+        android:textColor="#c0392b"
+        android:textSize="30dp"
         android:clickable="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
