@@ -1,7 +1,6 @@
 package pl.ola.extrashoppinglist;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
@@ -20,6 +19,7 @@ public class DataManager {
     private static DataManager instance;
     private SharedPreferences sharedPreferences;
     private static List<Item> items = new ArrayList<Item>();
+    private static List<DeletedItem> deletedItems = new ArrayList<DeletedItem>();
     private static int lastItemId = 0;
     private static boolean isItemStarred = false;
     Gson gson;
@@ -34,7 +34,8 @@ public class DataManager {
     private DataManager(Context context) {
         sharedPreferences =  PreferenceManager.getDefaultSharedPreferences(context);
         gson = new Gson();
-        items = readDataFromSharedPreferences();
+        items = readItemsDataFromSharedPreferences();
+        deletedItems = readDeletedItemsDataFromSharedPreferences();
 
     }
 
@@ -42,11 +43,16 @@ public class DataManager {
         return items;
     }
 
+    public List<DeletedItem> getDeletedItems(){
+        return deletedItems;
+    }
+
     public void updateItem(Item item){
         int position = getItemPositionById(item.itemId);
         if (position != -1) {
             items.set(position, item);
-            writeToSharedPreferences();
+            writeItemsToSharedPreferences();
+            writeDeletedItemsToSharedPreferences();
         }
     }
 
@@ -68,20 +74,39 @@ public class DataManager {
        return null;
     }
 
+    public DeletedItem getDeletedItemById(int itemId){
+        for (DeletedItem item: deletedItems){
+            if (item.itemId == itemId){
+                return item;
+            }
+        }
+        return null;
+    }
+
     public void addItem(Item item) {
         lastItemId = lastItemId + 1;
         item.itemId = lastItemId;
         items.add(item);
-        writeToSharedPreferences();
+        writeItemsToSharedPreferences();
     }
 
     public void removeItem(int itemId){
         Item itemToRemove = getItemById(itemId);
+        DeletedItem deletedItem = new DeletedItem(itemToRemove);
+        deletedItems.add(deletedItem);
         items.remove(itemToRemove);
-        writeToSharedPreferences();
+        writeItemsToSharedPreferences();
+        writeDeletedItemsToSharedPreferences();
     }
 
-    private void writeToSharedPreferences(){
+    public void revealDeletedItem(int itemId){
+        DeletedItem itemToReveal = getDeletedItemById(itemId);
+        Item revealedItem = new Item(itemToReveal);
+        items.add(revealedItem);
+        deletedItems.remove(itemToReveal);
+    }
+
+    private void writeItemsToSharedPreferences(){
         String itemsToSave = gson.toJson(items);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("itemsList", itemsToSave);
@@ -90,7 +115,15 @@ public class DataManager {
         editor.apply();
     }
 
-    private List<Item> readDataFromSharedPreferences(){
+    private void writeDeletedItemsToSharedPreferences(){
+        String deletedItemsToSave = gson.toJson(deletedItems);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("deletedItemsList", deletedItemsToSave);
+        editor.putInt("deletedItemID",lastItemId);
+        editor.apply();
+    }
+
+    private List<Item> readItemsDataFromSharedPreferences(){
         String itemsToRead = sharedPreferences.getString("itemsList", null);
         lastItemId = sharedPreferences.getInt("lastItemId", 0);
         isItemStarred = sharedPreferences.getBoolean("isItemStarred", false);
@@ -100,6 +133,17 @@ public class DataManager {
         Type type = new TypeToken<List<Item>>() {}.getType();
         List<Item> savedItems = gson.fromJson(itemsToRead, type);
         return savedItems;
+    }
+
+    private List<DeletedItem> readDeletedItemsDataFromSharedPreferences(){
+        String itemsToRead = sharedPreferences.getString("deletedItemsList", null);
+        lastItemId = sharedPreferences.getInt("lastItemId", 0);
+        if (itemsToRead == null){
+            return new ArrayList<>();
+        }
+        Type type = new TypeToken<List<DeletedItem>>() {}.getType();
+        List<DeletedItem> savedDeletedItems = gson.fromJson(itemsToRead, type);
+        return savedDeletedItems;
     }
 
 }

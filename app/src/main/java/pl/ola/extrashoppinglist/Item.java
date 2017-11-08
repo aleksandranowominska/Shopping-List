@@ -21,6 +21,14 @@ public class Item {
         this.isItemStarred = false;
     }
 
+    public Item (DeletedItem deletedItem){
+        this.itemName = deletedItem.itemName;
+        this.itemDescription = deletedItem.itemDescription;
+        this.itemId = deletedItem.itemId;
+        this.itemReminderDate = null;
+        this.isItemStarred = false;
+    }
+
     @Override
     public String toString() {
         return "Item{" +

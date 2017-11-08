@@ -1,11 +1,8 @@
 package pl.ola.extrashoppinglist;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -16,9 +13,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 
 import static pl.ola.extrashoppinglist.ItemDetailsActivity.ITEM_ID;
 
@@ -29,9 +24,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     DataManager dataManager;
     ListView itemsListView;
-    ShoppingListArrayAdapter adapter;
+    ListView deletedItemsListView;
+    ShoppingListArrayAdapter shoppingListArrayAdapter;
+    DoneListArrayAdapter doneListArrayAdapter;
     ImageView sortUpButton;
     ImageView sortDownButton;
+    TextView deletedItemsTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,14 +38,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         setContentView(R.layout.activity_main);
         itemsListView = (ListView) findViewById(R.id.shopping_list);
-        adapter = new ShoppingListArrayAdapter(this, dataManager.getItems());
-        itemsListView.setAdapter(adapter);
+        deletedItemsListView = (ListView) findViewById(R.id.deleted_list);
+
+        shoppingListArrayAdapter = new ShoppingListArrayAdapter(this, dataManager.getItems());
+        itemsListView.setAdapter(shoppingListArrayAdapter);
+        doneListArrayAdapter = new DoneListArrayAdapter(this, dataManager.getDeletedItems());
+        deletedItemsListView.setAdapter(doneListArrayAdapter);
+
         sortUpButton = (ImageView) findViewById(R.id.sort_up);
         sortDownButton = (ImageView) findViewById(R.id.sort_down);
         sortUpButton.setClickable(true);
         sortDownButton.setClickable(true);
         sortUpButton.setOnClickListener(this);
         sortDownButton.setOnClickListener(this);
+
+        deletedItemsTextView = (TextView) findViewById(R.id.deleted_items_text_view);
+        deletedItemsTextView.setClickable(true);
+        deletedItemsTextView.setOnClickListener(this);
 
 
 
@@ -60,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     String itemToAdd = addItem.getText().toString();
                     dataManager.addItem(new Item(itemToAdd));
-                    adapter.notifyDataSetChanged();
+                    shoppingListArrayAdapter.notifyDataSetChanged();
                     addItem.setText("");
 
                     return true;
@@ -73,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent = new Intent(MainActivity.this, ItemDetailsActivity.class);
-                Item item = adapter.getItem(i);
+                Item item = shoppingListArrayAdapter.getItem(i);
                 intent.putExtra(ITEM_ID, item.itemId);
                 startActivity(intent);
             }
@@ -86,13 +93,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onResume() {
         super.onResume();
-        adapter.notifyDataSetChanged();
+        shoppingListArrayAdapter.notifyDataSetChanged();
+        doneListArrayAdapter.notifyDataSetChanged();
     }
 
 
 
     public void sortUp(){
-        adapter.sort(new Comparator<Item>() {
+        shoppingListArrayAdapter.sort(new Comparator<Item>() {
             @Override
             public int compare(Item object1, Item object2) {
                 return object1.itemName.compareTo(object2.itemName);
@@ -100,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
     public void sortDown(){
-        adapter.sort(new Comparator<Item>() {
+        shoppingListArrayAdapter.sort(new Comparator<Item>() {
             @Override
             public int compare(Item object1, Item object2) {
                 return object2.itemName.compareTo(object1.itemName);
@@ -118,6 +126,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             case R.id.sort_down:
                 sortDown();
+                break;
+
+            case R.id.deleted_items_text_view:
+                Toast.makeText(this, "Load deleted items list", Toast.LENGTH_SHORT).show();
                 break;
 
             default:
