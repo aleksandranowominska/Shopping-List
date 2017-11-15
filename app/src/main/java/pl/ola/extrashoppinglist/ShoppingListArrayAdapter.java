@@ -16,7 +16,6 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.Comparator;
 import java.util.List;
 
 import static android.content.Context.ALARM_SERVICE;
