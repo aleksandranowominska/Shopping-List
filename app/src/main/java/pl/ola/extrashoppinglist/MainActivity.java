@@ -4,6 +4,9 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
@@ -30,6 +33,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ImageView sortUpButton;
     ImageView sortDownButton;
     TextView deletedItemsTextView;
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.shopping_list_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.sort_list:
+                Toast.makeText(MainActivity.this, "Sort button clicked", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.sort_up:
+                sortUp();
+                return true;
+            case R.id.sort_down:
+                sortDown();
+                return true;
+            case R.id.sort_with_stars:
+                sortWithStars();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,6 +145,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return object2.itemName.compareTo(object1.itemName);
             }
         });
+    }
+
+    public void sortWithStars(){
+        Toast.makeText(this, "Sort by stars", Toast.LENGTH_SHORT).show();
     }
 
     @Override

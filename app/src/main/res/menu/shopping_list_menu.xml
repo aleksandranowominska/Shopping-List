@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent">
+    <item android:id="@+id/sort_list"
+        android:icon="@drawable/sort_options"
+        android:title="Sort list">
+        <menu>
+            <item android:id="@+id/sort_up"
+            android:title="Sort ascending" />
+            <item android:id="@+id/sort_down"
+            android:title="Sort descending" />
+            <item android:id="@+id/sort_with_stars"
+            android:title="Sort by priority" />
+        </menu>
+    </item>
+</menu>
