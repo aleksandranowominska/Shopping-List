@@ -25,39 +25,18 @@
         android:id="@+id/deleted_items_text_view"
         android:layout_below="@+id/shopping_list"
         android:text="Deleted Items"
-        android:textColor="#c0392b"
-        android:textSize="30dp"
+        android:textColor="@color/colorAccent"
+        android:textSize="25dp"
         android:clickable="true"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
     <ListView
         android:id="@+id/deleted_list"
         android:layout_below="@+id/deleted_items_text_view"
-        android:layout_above="@+id/sorting_buttons"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
-
-    <RelativeLayout
-        android:id="@+id/sorting_buttons"
-        android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:layout_centerInParent="true"
-        android:layout_alignParentBottom="true">
-        <ImageView
-            android:id="@+id/sort_up"
-            android:layout_marginRight="20dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/sort_up"
-            android:clickable="true"/>
-        <ImageView
-            android:id="@+id/sort_down"
-            android:layout_toRightOf="@+id/sort_up"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/sort_down"
-            android:clickable="true"/>
-    </RelativeLayout>
 
 </RelativeLayout>

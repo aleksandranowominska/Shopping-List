@@ -105,7 +105,7 @@ public class DataManager {
         deletedItems.remove(itemToReveal);
     }
 
-    private void writeItemsToSharedPreferences(){
+    public void writeItemsToSharedPreferences(){
         String itemsToSave = gson.toJson(items);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("itemsList", itemsToSave);

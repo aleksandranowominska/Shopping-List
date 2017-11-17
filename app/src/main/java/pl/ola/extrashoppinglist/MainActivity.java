@@ -1,6 +1,9 @@
 package pl.ola.extrashoppinglist;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -30,8 +33,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ListView deletedItemsListView;
     ShoppingListArrayAdapter shoppingListArrayAdapter;
     DoneListArrayAdapter doneListArrayAdapter;
-    ImageView sortUpButton;
-    ImageView sortDownButton;
     TextView deletedItemsTextView;
 
     @Override
@@ -45,16 +46,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.sort_list:
-                Toast.makeText(MainActivity.this, "Sort button clicked", Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.sort_up:
                 sortUp();
+                dataManager.writeItemsToSharedPreferences();
                 return true;
             case R.id.sort_down:
                 sortDown();
+                dataManager.writeItemsToSharedPreferences();
                 return true;
             case R.id.sort_with_stars:
                 sortWithStars();
+                dataManager.writeItemsToSharedPreferences();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -64,6 +67,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+//        setTint(getResources().getDrawable(R.drawable.ic_sort_by_alpha), getResources().getColor(R.color.lightGray));
+
         dataManager = DataManager.getInstance(this);
 
         setContentView(R.layout.activity_main);
@@ -75,13 +81,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         doneListArrayAdapter = new DoneListArrayAdapter(this, dataManager.getDeletedItems());
         deletedItemsListView.setAdapter(doneListArrayAdapter);
         deletedItemsListView.setVisibility(View.GONE);
-
-        sortUpButton = (ImageView) findViewById(R.id.sort_up);
-        sortDownButton = (ImageView) findViewById(R.id.sort_down);
-        sortUpButton.setClickable(true);
-        sortDownButton.setClickable(true);
-        sortUpButton.setOnClickListener(this);
-        sortDownButton.setOnClickListener(this);
 
         deletedItemsTextView = (TextView) findViewById(R.id.deleted_items_text_view);
         deletedItemsTextView.setClickable(true);
@@ -117,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
     }
 
 
@@ -148,7 +147,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void sortWithStars(){
-        Toast.makeText(this, "Sort by stars", Toast.LENGTH_SHORT).show();
         shoppingListArrayAdapter.sort(new StarredComparator<Item>());
     }
 
@@ -157,11 +155,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId()) {
 
             case R.id.sort_up:
-                sortUp();
+
                 break;
 
             case R.id.sort_down:
-                sortDown();
+
                 break;
 
             case R.id.deleted_items_text_view:
@@ -177,4 +175,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
     }
+
+//    public static Drawable setTint(Drawable d, int color) {
+//        Drawable wrappedDrawable = DrawableCompat.wrap(d);
+//        DrawableCompat.setTint(wrappedDrawable, color);
+//        return wrappedDrawable;
+//    }
 }
