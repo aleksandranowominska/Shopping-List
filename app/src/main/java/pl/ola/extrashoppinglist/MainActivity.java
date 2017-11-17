@@ -149,6 +149,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void sortWithStars(){
         Toast.makeText(this, "Sort by stars", Toast.LENGTH_SHORT).show();
+        shoppingListArrayAdapter.sort(new StarredComparator<Item>());
     }
 
     @Override
