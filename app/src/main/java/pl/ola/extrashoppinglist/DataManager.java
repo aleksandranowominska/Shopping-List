@@ -98,11 +98,11 @@ public class DataManager {
         writeDeletedItemsToSharedPreferences();
     }
 
-    public void revealDeletedItem(int itemId){
-        DeletedItem itemToReveal = getDeletedItemById(itemId);
-        Item revealedItem = new Item(itemToReveal);
+    public void undoDeletedItem(int itemId){
+        DeletedItem deletedItem = getDeletedItemById(itemId);
+        Item revealedItem = new Item(deletedItem);
         items.add(revealedItem);
-        deletedItems.remove(itemToReveal);
+        deletedItems.remove(deletedItem);
     }
 
     public void writeItemsToSharedPreferences(){
