@@ -37,7 +37,7 @@ public class ReminderService extends Service {
         }
 
 
-        int itemId = intent.getIntExtra(ITEM_ID, 0);
+        long itemId = intent.getLongExtra(ITEM_ID, 0);
         Item item = dataManager.getItemById(itemId);
 
         Notification myNotification = new NotificationCompat.Builder(this)
@@ -52,9 +52,9 @@ public class ReminderService extends Service {
         myIntent.putExtra(ITEM_ID, itemId);
         Log.d("olka", "onStartCommand: intent extra: "+myIntent.getIntExtra(ITEM_ID, -1));
 
-        PendingIntent contentIntent = PendingIntent.getActivity(this, itemId, myIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, (int) itemId, myIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         myNotification.contentIntent = contentIntent;
-        notificationManager.notify(itemId, myNotification);
+        notificationManager.notify((int) itemId, myNotification);
 
         return super.onStartCommand(intent, flags, startId);
     }
