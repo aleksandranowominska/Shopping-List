@@ -42,14 +42,16 @@ public class ItemDetailsActivity extends AppCompatActivity implements DatePicker
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_item_details);
         itemNameEditText = (EditText) findViewById(R.id.item_name_to_edit);
         itemDescriptionEditText = (EditText) findViewById(R.id.item_description);
         itemReminderDateTextView = (TextView) findViewById(R.id.item_reminder_date);
         itemReminderHourTextView = (TextView) findViewById(R.id.item_reminder_hour);
+
         Intent intent = getIntent();
         dataManager = DataManager.getInstance(this);
-        int itemId = intent.getIntExtra(ITEM_ID, 0);
+        long itemId = intent.getLongExtra(ITEM_ID, 0);
         item = dataManager.getItemById(itemId);
         Log.d(TAG, "activity onCreate: id "+itemId +" item" + item);
         reminderCalendar = Calendar.getInstance();
@@ -191,14 +193,15 @@ public class ItemDetailsActivity extends AppCompatActivity implements DatePicker
 
     public void setAlarm(Date date){
         Intent myIntent = new Intent(this , ReminderService.class);
-        myIntent.putExtra(ITEM_ID, item.itemId);
+        long itemId = dataManager.getItemId(item);
+        myIntent.putExtra(ITEM_ID, itemId);
         AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
-        PendingIntent pendingIntent = PendingIntent.getService(this, item.itemId, myIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getService(this, (int) itemId, myIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         SimpleDateFormat dateFormat =  new SimpleDateFormat("dd/MM/yyyy");
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
         alarmManager.set(AlarmManager.RTC_WAKEUP, date.getTime(), pendingIntent);
         Toast.makeText(this, "Alarm set on "+ dateFormat.format(date)+" for "+ timeFormat.format(date), Toast.LENGTH_SHORT).show();
-        Log.d("olka", "Alarm set on "+ dateFormat.format(date)+" for "+ timeFormat.format(date)+ " for ID: " + item.itemId);
+        Log.d("olka", "Alarm set on "+ dateFormat.format(date)+" for "+ timeFormat.format(date)+ " for ID: " + itemId);
     }
 }

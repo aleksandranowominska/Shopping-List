@@ -26,11 +26,15 @@ import static pl.ola.extrashoppinglist.ItemDetailsActivity.ITEM_ID;
  */
 
 public class ShoppingListArrayAdapter extends ArrayAdapter<Item> {
-    public ShoppingListArrayAdapter(@NonNull Context context, @NonNull List<Item> objects) {
+
+    DataManager dataManager;
+    OnItemDeletedListener onItemDeletedListener;
+
+    public ShoppingListArrayAdapter(@NonNull Context context, @NonNull List<Item> objects, OnItemDeletedListener listener) {
         super(context, 0, objects);
+        dataManager = DataManager.getInstance(getContext());
+        onItemDeletedListener = listener;
     }
-
-
 
     @NonNull
     @Override
@@ -48,7 +52,6 @@ public class ShoppingListArrayAdapter extends ArrayAdapter<Item> {
         final ImageView isItemStarred = (ImageView) convertView.findViewById(R.id.item_star);
 
 
-
         itemNameTextView.setText(item.itemName);
         setStarIcon(item, isItemStarred);
         // check box
@@ -58,11 +61,13 @@ public class ShoppingListArrayAdapter extends ArrayAdapter<Item> {
         deleteItemCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton myCheckbox, boolean b) {
-                cancelAlarm(item.itemId);
+                cancelAlarm(item.id);
                 mediaPlayer.start();
-                DataManager dataManager = DataManager.getInstance(getContext());
-                dataManager.removeItem(item.itemId);
-                notifyDataSetChanged();
+                item.isItemDone = true;
+                dataManager.updateItem(item);
+                if (onItemDeletedListener != null) {
+                    onItemDeletedListener.onItemDeleted(item.id);
+                }
             }
         });
 
@@ -85,25 +90,24 @@ public class ShoppingListArrayAdapter extends ArrayAdapter<Item> {
         }
     }
 
-    public void setStarIconWhenClicked(Item item, ImageView isItemStarred){
+    public void setStarIconWhenClicked(Item item, ImageView isItemStarred) {
         DataManager dataManager = DataManager.getInstance(getContext());
-        if (item.isItemStarred == false){
+        if (item.isItemStarred == false) {
             isItemStarred.setImageResource(R.drawable.star_on);
             item.isItemStarred = true;
             dataManager.updateItem(item);
-        }
-        else {
+        } else {
             isItemStarred.setImageResource(R.drawable.star_off);
             item.isItemStarred = false;
             dataManager.updateItem(item);
         }
     }
 
-    public void cancelAlarm(int itemId){
-        Intent myIntent = new Intent(getContext() , ReminderService.class);
+    public void cancelAlarm(long itemId) {
+        Intent myIntent = new Intent(getContext(), ReminderService.class);
         myIntent.putExtra(ITEM_ID, itemId);
-        AlarmManager alarmManager = (AlarmManager)getContext().getSystemService(ALARM_SERVICE);
-        PendingIntent pendingIntent = PendingIntent.getService(getContext(), itemId, myIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager alarmManager = (AlarmManager) getContext().getSystemService(ALARM_SERVICE);
+        PendingIntent pendingIntent = PendingIntent.getService(getContext(), (int) itemId, myIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         alarmManager.cancel(pendingIntent);
     }

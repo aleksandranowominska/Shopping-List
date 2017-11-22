@@ -1,33 +1,37 @@
 package pl.ola.extrashoppinglist;
 
+
 import java.util.Date;
+
+import io.objectbox.annotation.Entity;
+import io.objectbox.annotation.Id;
 
 /**
  * Created by Aleksandra Kusiak on 27.09.2017.
  */
 
+@Entity
 public class Item {
+    @Id
+    public long id;
+
     public String itemName;
     public String itemDescription;
     public Date itemReminderDate;
-    public int itemId;
     public boolean isItemStarred;
+    public boolean isItemDone;
 
-    public Item (String itemName){
+    public Item() {
+    }
+
+    public Item(String itemName) {
         this.itemName = itemName;
         this.itemDescription = "";
         this.itemReminderDate = null;
-        this.itemId = 0;
         this.isItemStarred = false;
+        this.isItemDone = false;
     }
 
-    public Item (DeletedItem deletedItem){
-        this.itemName = deletedItem.itemName;
-        this.itemDescription = deletedItem.itemDescription;
-        this.itemId = deletedItem.itemId;
-        this.itemReminderDate = null;
-        this.isItemStarred = false;
-    }
 
     @Override
     public String toString() {
@@ -35,8 +39,8 @@ public class Item {
                 "itemName='" + itemName + '\'' +
                 ", itemDescription='" + itemDescription + '\'' +
                 ", itemReminderDate=" + itemReminderDate +
-                ", itemId=" + itemId +
                 ", isItemStarred=" + isItemStarred +
+                ", isItemDone=" + isItemDone +
                 '}';
     }
 

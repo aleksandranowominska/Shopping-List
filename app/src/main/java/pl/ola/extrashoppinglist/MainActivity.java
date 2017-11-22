@@ -14,7 +14,9 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 import static pl.ola.extrashoppinglist.ItemDetailsActivity.ITEM_ID;
 
@@ -29,6 +31,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ShoppingListArrayAdapter shoppingListArrayAdapter;
     DoneListArrayAdapter doneListArrayAdapter;
     TextView deletedItemsTextView;
+    List<Item> shoppingList = new ArrayList<Item>();
+    List<Item> doneList = new ArrayList<Item>();
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -44,15 +48,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return true;
             case R.id.sort_up:
                 sortUp();
-                dataManager.writeItemsToSharedPreferences();
+//                dataManager.writeItemsToSharedPreferences();
                 return true;
             case R.id.sort_down:
                 sortDown();
-                dataManager.writeItemsToSharedPreferences();
+//                dataManager.writeItemsToSharedPreferences();
                 return true;
             case R.id.sort_with_stars:
                 sortWithStars();
-                dataManager.writeItemsToSharedPreferences();
+//                dataManager.writeItemsToSharedPreferences();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -63,37 +67,45 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-//        setTint(getResources().getDrawable(R.drawable.ic_sort_by_alpha), getResources().getColor(R.color.lightGray));
-
         dataManager = DataManager.getInstance(this);
 
         setContentView(R.layout.activity_main);
         itemsListView = (ListView) findViewById(R.id.shopping_list);
         deletedItemsListView = (ListView) findViewById(R.id.deleted_list);
 
-        shoppingListArrayAdapter = new ShoppingListArrayAdapter(this, dataManager.getItems());
+        shoppingListArrayAdapter = new ShoppingListArrayAdapter(this, shoppingList, new OnItemDeletedListener() {
+            @Override
+            public void onItemDeleted(long itemId) {
+                updateData();
+            }
+        });
         itemsListView.setAdapter(shoppingListArrayAdapter);
-        doneListArrayAdapter = new DoneListArrayAdapter(this, dataManager.getDeletedItems());
+        doneListArrayAdapter = new DoneListArrayAdapter(this, doneList, new OnItemDeletedListener() {
+            @Override
+            public void onItemDeleted(long itemId) {
+                updateData();
+            }
+        });
         deletedItemsListView.setAdapter(doneListArrayAdapter);
         deletedItemsListView.setVisibility(View.GONE);
 
         deletedItemsTextView = (TextView) findViewById(R.id.deleted_items_text_view);
         deletedItemsTextView.setClickable(true);
         deletedItemsTextView.setOnClickListener(this);
-
-
+updateData();
 
         // Enter click
-        final EditText addItem = (EditText) findViewById(R.id.add_item);
+        final EditText addItemTextView = (EditText) findViewById(R.id.add_item);
 
-        addItem.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+        addItemTextView.setOnEditorActionListener(new EditText.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    String itemToAdd = addItem.getText().toString();
-                    dataManager.addItem(new Item(itemToAdd));
-                    shoppingListArrayAdapter.notifyDataSetChanged();
-                    addItem.setText("");
+                    String typedItemNameToAdd = addItemTextView.getText().toString();
+                    Item item = new Item(typedItemNameToAdd);
+                    dataManager.updateItem(item);
+                    updateData();
+                    addItemTextView.setText("");
 
                     return true;
                 }
@@ -106,7 +118,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent = new Intent(MainActivity.this, ItemDetailsActivity.class);
                 Item item = shoppingListArrayAdapter.getItem(i);
-                intent.putExtra(ITEM_ID, item.itemId);
+                long itemId = dataManager.getItemId(item);
+                intent.putExtra(ITEM_ID, itemId);
                 startActivity(intent);
             }
         });
@@ -115,11 +128,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
+    public void updateData(){
+        shoppingList.clear();
+        doneList.clear();
+        shoppingList.addAll(dataManager.getItems());
+        doneList.addAll(dataManager.getDoneItems());
+        shoppingListArrayAdapter.notifyDataSetChanged();
+        doneListArrayAdapter.notifyDataSetChanged();
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
-        shoppingListArrayAdapter.notifyDataSetChanged();
-        doneListArrayAdapter.notifyDataSetChanged();
+       updateData();
     }
 
 
@@ -148,15 +169,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-
-            case R.id.sort_up:
-
-                break;
-
-            case R.id.sort_down:
-
-                break;
-
             case R.id.deleted_items_text_view:
                 if (deletedItemsListView.getVisibility() == View.VISIBLE){
                     deletedItemsListView.setVisibility(View.GONE);
@@ -170,10 +182,4 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
     }
-
-//    public static Drawable setTint(Drawable d, int color) {
-//        Drawable wrappedDrawable = DrawableCompat.wrap(d);
-//        DrawableCompat.setTint(wrappedDrawable, color);
-//        return wrappedDrawable;
-//    }
 }

@@ -15,6 +15,7 @@ import static pl.ola.extrashoppinglist.ItemDetailsActivity.ITEM_ID;
 
 public class ReminderService extends Service {
     private static final int NOTIFICATION = 2;
+    DataManager dataManager;
 
     public ReminderService() {
     }
@@ -29,18 +30,15 @@ public class ReminderService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         Log.d("olka", "onStartCommand: started service");
+        dataManager = DataManager.getInstance(this);
 
         if (intent == null) {
             return super.onStartCommand(intent, flags, startId);
         }
 
-        DataManager dataManager = DataManager.getInstance(this);
+
         int itemId = intent.getIntExtra(ITEM_ID, 0);
         Item item = dataManager.getItemById(itemId);
-
-        Log.d("olka", "id: "+ itemId + " item: "+ item);
-
-
 
         Notification myNotification = new NotificationCompat.Builder(this)
                 .setContentTitle("Item to buy: " + item.itemName)

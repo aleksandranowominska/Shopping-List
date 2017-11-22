@@ -20,8 +20,13 @@ import java.util.List;
 
 public class DoneListArrayAdapter extends ArrayAdapter {
 
-    public DoneListArrayAdapter(@NonNull Context context, @NonNull List<DeletedItem> objects) {
+    DataManager dataManager;
+    OnItemDeletedListener onItemDeletedListener;
+
+    public DoneListArrayAdapter(@NonNull Context context, @NonNull List<Item> objects, OnItemDeletedListener listener) {
         super(context, 0, objects);
+        dataManager = DataManager.getInstance(getContext());
+        onItemDeletedListener = listener;
     }
 
     @NonNull
@@ -33,7 +38,7 @@ public class DoneListArrayAdapter extends ArrayAdapter {
         }
 
 
-        final DeletedItem deletedItem = (DeletedItem) getItem(position);
+        final Item deletedItem = (Item) getItem(position);
         TextView itemNameTextView = (TextView) convertView.findViewById(R.id.deleted_item_name);
         CheckBox deleteItemCheckbox = (CheckBox) convertView.findViewById(R.id.deleted_item_checkbox);
 
@@ -47,9 +52,12 @@ public class DoneListArrayAdapter extends ArrayAdapter {
         deleteItemCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton myCheckbox, boolean b) {
-                DataManager dataManager = DataManager.getInstance(getContext());
-                dataManager.undoDeletedItem(deletedItem.itemId);
-                notifyDataSetChanged();
+
+                deletedItem.isItemDone = false;
+                dataManager.updateItem(deletedItem);
+                if (onItemDeletedListener != null) {
+                    onItemDeletedListener.onItemDeleted(deletedItem.id);
+                }
             }
         });
 
