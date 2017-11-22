@@ -1,8 +1,10 @@
 package pl.ola.extrashoppinglist;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -15,7 +17,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 import static pl.ola.extrashoppinglist.ItemDetailsActivity.ITEM_ID;
@@ -24,8 +25,8 @@ import static pl.ola.extrashoppinglist.ItemDetailsActivity.ITEM_ID;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "Olka";
 
-
     DataManager dataManager;
+    SharedPreferencesManager sharedPreferencesManager;
     ListView itemsListView;
     ListView deletedItemsListView;
     ShoppingListArrayAdapter shoppingListArrayAdapter;
@@ -33,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     TextView deletedItemsTextView;
     List<Item> shoppingList = new ArrayList<Item>();
     List<Item> doneList = new ArrayList<Item>();
+    String sortingStyle;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -44,19 +46,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.sort_list:
-                return true;
+
             case R.id.sort_up:
-                sortUp();
-//                dataManager.writeItemsToSharedPreferences();
+                sharedPreferencesManager.setSortingStyle(SharedPreferencesManager.SORTED_ASCENDING);
+                updateData();
                 return true;
             case R.id.sort_down:
-                sortDown();
-//                dataManager.writeItemsToSharedPreferences();
+                sharedPreferencesManager.setSortingStyle(SharedPreferencesManager.SORTED_DESCENDING);
+                updateData();
                 return true;
             case R.id.sort_with_stars:
-                sortWithStars();
-//                dataManager.writeItemsToSharedPreferences();
+                sharedPreferencesManager.setSortingStyle(SharedPreferencesManager.SORTED_WITH_PRIORITY);
+                updateData();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -68,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
 
         dataManager = DataManager.getInstance(this);
-
+        sharedPreferencesManager = SharedPreferencesManager.getInstance(this);
         setContentView(R.layout.activity_main);
         itemsListView = (ListView) findViewById(R.id.shopping_list);
         deletedItemsListView = (ListView) findViewById(R.id.deleted_list);
@@ -92,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         deletedItemsTextView = (TextView) findViewById(R.id.deleted_items_text_view);
         deletedItemsTextView.setClickable(true);
         deletedItemsTextView.setOnClickListener(this);
-updateData();
+        updateData();
 
         // Enter click
         final EditText addItemTextView = (EditText) findViewById(R.id.add_item);
@@ -128,10 +129,24 @@ updateData();
     }
 
 
-    public void updateData(){
+    public void updateData() {
+
+        sortingStyle = sharedPreferencesManager.getSortingStyle();
         shoppingList.clear();
         doneList.clear();
-        shoppingList.addAll(dataManager.getItems());
+
+        if (sortingStyle.equals(SharedPreferencesManager.SORTED_ASCENDING)){
+            shoppingList.addAll(dataManager.getAscendingItems());
+        }
+        else if (sortingStyle.equals(SharedPreferencesManager.SORTED_DESCENDING)){
+            shoppingList.addAll(dataManager.getDescendingItems());
+        }
+        else if (sortingStyle.equals(SharedPreferencesManager.SORTED_WITH_PRIORITY)){
+            shoppingList.addAll(dataManager.getPrioritySortedItems());
+        }
+        else {
+            shoppingList.addAll(dataManager.getItems());
+        }
         doneList.addAll(dataManager.getDoneItems());
         shoppingListArrayAdapter.notifyDataSetChanged();
         doneListArrayAdapter.notifyDataSetChanged();
@@ -140,40 +155,16 @@ updateData();
     @Override
     protected void onResume() {
         super.onResume();
-       updateData();
-    }
-
-
-
-    public void sortUp(){
-        shoppingListArrayAdapter.sort(new Comparator<Item>() {
-            @Override
-            public int compare(Item object1, Item object2) {
-                return object1.itemName.compareTo(object2.itemName);
-            }
-        });
-    }
-    public void sortDown(){
-        shoppingListArrayAdapter.sort(new Comparator<Item>() {
-            @Override
-            public int compare(Item object1, Item object2) {
-                return object2.itemName.compareTo(object1.itemName);
-            }
-        });
-    }
-
-    public void sortWithStars(){
-        shoppingListArrayAdapter.sort(new StarredComparator<Item>());
+        updateData();
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.deleted_items_text_view:
-                if (deletedItemsListView.getVisibility() == View.VISIBLE){
+                if (deletedItemsListView.getVisibility() == View.VISIBLE) {
                     deletedItemsListView.setVisibility(View.GONE);
-                }
-                else {
+                } else {
                     deletedItemsListView.setVisibility(View.VISIBLE);
                 }
                 break;

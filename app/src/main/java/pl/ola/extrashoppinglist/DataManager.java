@@ -1,18 +1,12 @@
 package pl.ola.extrashoppinglist;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.provider.ContactsContract;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-import java.lang.reflect.Type;
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import io.objectbox.Box;
+import io.objectbox.query.QueryBuilder;
 
 /**
  * Created by Aleksandra Kusiak on 28.09.2017.
@@ -22,7 +16,7 @@ public class DataManager {
     private static DataManager instance;
     Box itemBox;
 
-    public static DataManager getInstance(Context context){
+    public static DataManager getInstance(Context context) {
         if (instance == null) {
             instance = new DataManager(context);
         }
@@ -38,15 +32,39 @@ public class DataManager {
         return itemBox.query().equal(Item_.isItemDone, false).build().find();
     }
 
-    public List<Item> getDoneItems(){
+    public List<Item> getAscendingItems() {
+        QueryBuilder<Item> builder = itemBox.query();
+        builder.equal(Item_.isItemDone, false)
+        .order(Item_.itemName);
+        List<Item> ascendingList = builder.build().find();
+        return ascendingList;
+    }
+
+    public List<Item> getDescendingItems() {
+        QueryBuilder<Item> builder = itemBox.query();
+        builder.equal(Item_.isItemDone, false)
+        .orderDesc(Item_.itemName);
+        List<Item> descendingList = builder.build().find();
+        return descendingList;
+    }
+
+    public List<Item> getPrioritySortedItems() {
+        QueryBuilder<Item> builder = itemBox.query();
+        builder.equal(Item_.isItemDone, false)
+                .orderDesc(Item_.isItemStarred);
+        List<Item> prioritySortedList = builder.build().find();
+        return prioritySortedList;
+    }
+
+    public List<Item> getDoneItems() {
         return itemBox.query().equal(Item_.isItemDone, true).build().find();
     }
 
-    public void updateItem(Item item){
-       itemBox.put(item);
+    public void updateItem(Item item) {
+        itemBox.put(item);
     }
 
-    public long getItemId(Item item){
+    public long getItemId(Item item) {
         return itemBox.getId(item);
     }
 
