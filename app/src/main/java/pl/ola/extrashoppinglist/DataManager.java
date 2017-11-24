@@ -60,6 +60,10 @@ public class DataManager {
         return itemBox.query().equal(Item_.isItemDone, true).build().find();
     }
 
+    public void removeItem(Item item){
+        itemBox.remove(item);
+    }
+
     public void updateItem(Item item) {
         itemBox.put(item);
     }
