@@ -2,12 +2,10 @@ package pl.ola.extrashoppinglist;
 
 import android.content.Context;
 import android.graphics.Paint;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
@@ -18,51 +16,65 @@ import java.util.List;
  * Created by Aleksandra Kusiak on 08.11.2017.
  */
 
-public class DoneListArrayAdapter extends ArrayAdapter {
+public class DoneListArrayAdapter extends RecyclerView.Adapter<DoneListArrayAdapter.ViewHolder> {
 
     DataManager dataManager;
-    OnItemDeletedListener onItemDeletedListener;
+    OnItemListener onItemListener;
+    private Context context;
+    private List<Item> doneItems;
 
-    public DoneListArrayAdapter(@NonNull Context context, @NonNull List<Item> objects, OnItemDeletedListener listener) {
-        super(context, 0, objects);
-        dataManager = DataManager.getInstance(getContext());
-        onItemDeletedListener = listener;
+    public class ViewHolder extends RecyclerView.ViewHolder {
+        TextView itemNameTextView;
+        CheckBox doneItemCheckbox;
+
+        public ViewHolder(View doneItemView) {
+            super(doneItemView);
+            itemNameTextView = (TextView) doneItemView.findViewById(R.id.deleted_item_name);
+            doneItemCheckbox = (CheckBox) doneItemView.findViewById(R.id.done_item_checkbox);
+        }
     }
 
-    @NonNull
+    public DoneListArrayAdapter(Context context, List<Item> doneItems, OnItemListener listener){
+        this.context = context;
+        this.doneItems = doneItems;
+        onItemListener = listener;
+        dataManager = DataManager.getInstance(context);
+    }
+
     @Override
-    public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        if (convertView == null) {
-            LayoutInflater inflater = LayoutInflater.from(getContext());
-            convertView = inflater.inflate(R.layout.single_deleted_item_cell, null);
-        }
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View doneItemView = inflater.inflate(R.layout.single_done_item_cell, parent, false);
+        ViewHolder viewHolder = new ViewHolder(doneItemView);
+        return viewHolder;
+    }
 
+    @Override
+    public void onBindViewHolder(ViewHolder holder, int position) {
+        final Item doneItem = doneItems.get(position);
+        holder.itemNameTextView.setText(doneItem.itemName);
+        holder.itemNameTextView.setPaintFlags(holder.itemNameTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
 
-        final Item deletedItem = (Item) getItem(position);
-        TextView itemNameTextView = (TextView) convertView.findViewById(R.id.deleted_item_name);
-        CheckBox deleteItemCheckbox = (CheckBox) convertView.findViewById(R.id.deleted_item_checkbox);
-
-
-        itemNameTextView.setText(deletedItem.itemName);
-        itemNameTextView.setPaintFlags(itemNameTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
         // check box
-        deleteItemCheckbox.setOnCheckedChangeListener(null);
-        deleteItemCheckbox.setChecked(false);
-        deleteItemCheckbox.setTag(position);
-        deleteItemCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        holder.doneItemCheckbox.setOnCheckedChangeListener(null);
+        holder.doneItemCheckbox.setChecked(false);
+        holder.doneItemCheckbox.setTag(position);
+        holder.doneItemCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton myCheckbox, boolean b) {
 
-                deletedItem.isItemDone = false;
-                dataManager.updateItem(deletedItem);
-                if (onItemDeletedListener != null) {
-                    onItemDeletedListener.onItemDeleted(deletedItem.id);
+                doneItem.isItemDone = false;
+                dataManager.updateItem(doneItem);
+                if (onItemListener != null) {
+                    onItemListener.onItemDeleted(doneItem.id);
                 }
             }
-        });
 
-        return convertView;
+        });
     }
 
-
+    @Override
+    public int getItemCount() {
+        return doneItems.size();
+    }
 }

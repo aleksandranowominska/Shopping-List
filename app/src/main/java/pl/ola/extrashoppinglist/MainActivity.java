@@ -1,19 +1,17 @@
 package pl.ola.extrashoppinglist;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.AdapterView;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -27,8 +25,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     DataManager dataManager;
     SharedPreferencesManager sharedPreferencesManager;
-    ListView itemsListView;
-    ListView deletedItemsListView;
+    RecyclerView itemsRecyclerView;
+    RecyclerView doneItemsRecyclerView;
     ShoppingListArrayAdapter shoppingListArrayAdapter;
     DoneListArrayAdapter doneListArrayAdapter;
     TextView deletedItemsTextView;
@@ -67,30 +65,57 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         dataManager = DataManager.getInstance(this);
         sharedPreferencesManager = SharedPreferencesManager.getInstance(this);
-        setContentView(R.layout.activity_main);
-        itemsListView = (ListView) findViewById(R.id.shopping_list);
-        deletedItemsListView = (ListView) findViewById(R.id.deleted_list);
 
-        shoppingListArrayAdapter = new ShoppingListArrayAdapter(this, shoppingList, new OnItemDeletedListener() {
+        itemsRecyclerView = (RecyclerView) findViewById(R.id.shopping_list_recycler_view);
+        doneItemsRecyclerView = (RecyclerView) findViewById(R.id.done_items_recycler_view);
+
+        LinearLayoutManager shoppingListLinearLayoutManager = new LinearLayoutManager(this);
+        shoppingListLinearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        LinearLayoutManager doneListLinearLayoutManager = new LinearLayoutManager(this);
+        doneListLinearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+
+        itemsRecyclerView.setLayoutManager(shoppingListLinearLayoutManager);
+        doneItemsRecyclerView.setLayoutManager(doneListLinearLayoutManager);
+
+        shoppingListArrayAdapter = new ShoppingListArrayAdapter(this, shoppingList, new OnItemListener() {
             @Override
             public void onItemDeleted(long itemId) {
                 updateData();
             }
-        });
-        itemsListView.setAdapter(shoppingListArrayAdapter);
-        doneListArrayAdapter = new DoneListArrayAdapter(this, doneList, new OnItemDeletedListener() {
+
+            @Override
+            public void onItemClick(long itemId) {
+                Intent intent = new Intent(MainActivity.this, ItemDetailsActivity.class);
+                intent.putExtra(ITEM_ID, itemId);
+                startActivity(intent);
+            }
+        }){
+
+        };
+
+
+        itemsRecyclerView.setAdapter(shoppingListArrayAdapter);
+
+        doneListArrayAdapter = new DoneListArrayAdapter(this, doneList, new OnItemListener() {
             @Override
             public void onItemDeleted(long itemId) {
                 updateData();
             }
-        });
-        deletedItemsListView.setAdapter(doneListArrayAdapter);
-        deletedItemsListView.setVisibility(View.GONE);
 
-        deletedItemsTextView = (TextView) findViewById(R.id.deleted_items_text_view);
+            @Override
+            public void onItemClick(long itemId) {
+
+            }
+        });
+        doneItemsRecyclerView.setAdapter(doneListArrayAdapter);
+        doneItemsRecyclerView.setVisibility(View.GONE);
+
+        deletedItemsTextView = (TextView) findViewById(R.id.done_items_text_view);
         deletedItemsTextView.setClickable(true);
         deletedItemsTextView.setOnClickListener(this);
         updateData();
@@ -114,18 +139,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        itemsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Intent intent = new Intent(MainActivity.this, ItemDetailsActivity.class);
-                Item item = shoppingListArrayAdapter.getItem(i);
-                long itemId = dataManager.getItemId(item);
-                intent.putExtra(ITEM_ID, itemId);
-                startActivity(intent);
-            }
-        });
 
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
     }
 
 
@@ -161,11 +175,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.deleted_items_text_view:
-                if (deletedItemsListView.getVisibility() == View.VISIBLE) {
-                    deletedItemsListView.setVisibility(View.GONE);
+            case R.id.done_items_text_view:
+                if (doneItemsRecyclerView.getVisibility() == View.VISIBLE) {
+                    doneItemsRecyclerView.setVisibility(View.GONE);
                 } else {
-                    deletedItemsListView.setVisibility(View.VISIBLE);
+                    doneItemsRecyclerView.setVisibility(View.VISIBLE);
                 }
                 break;
 

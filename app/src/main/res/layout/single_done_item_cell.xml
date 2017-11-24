@@ -14,7 +14,7 @@
             android:layout_height="match_parent">
 
             <CheckBox
-                android:id="@+id/deleted_item_checkbox"
+                android:id="@+id/done_item_checkbox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
@@ -27,7 +27,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="5dp"
-                android:layout_toRightOf="@+id/deleted_item_checkbox"
+                android:layout_toRightOf="@+id/done_item_checkbox"
                 android:clickable="false"
                 android:focusable="false"
                 android:focusableInTouchMode="false"

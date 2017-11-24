@@ -5,12 +5,10 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
@@ -25,60 +23,92 @@ import static pl.ola.extrashoppinglist.ItemDetailsActivity.ITEM_ID;
  * Created by Aleksandra Kusiak on 27.09.2017.
  */
 
-public class ShoppingListArrayAdapter extends ArrayAdapter<Item> {
+public class ShoppingListArrayAdapter extends RecyclerView.Adapter<ShoppingListArrayAdapter.ViewHolder> {
 
     DataManager dataManager;
-    OnItemDeletedListener onItemDeletedListener;
+    OnItemListener onItemListener;
+    private Context context;
+    private List<Item> items;
+    final MediaPlayer mediaPlayer;
 
-    public ShoppingListArrayAdapter(@NonNull Context context, @NonNull List<Item> objects, OnItemDeletedListener listener) {
-        super(context, 0, objects);
-        dataManager = DataManager.getInstance(getContext());
-        onItemDeletedListener = listener;
+    public class ViewHolder extends RecyclerView.ViewHolder {
+        TextView itemNameTextView;
+        CheckBox doneItemCheckbox;
+        ImageView isItemStarred;
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+            itemNameTextView = (TextView) itemView.findViewById(R.id.item_name);
+            doneItemCheckbox = (CheckBox) itemView.findViewById(R.id.item_checkbox);
+            isItemStarred = (ImageView) itemView.findViewById(R.id.item_star);
+        }
     }
 
-    @NonNull
+
+    public ShoppingListArrayAdapter(Context context, List<Item> items, OnItemListener listener){
+        this.context = context;
+        this.items = items;
+        onItemListener = listener;
+        mediaPlayer = MediaPlayer.create(context, R.raw.notification_sound);
+        dataManager = DataManager.getInstance(context);
+
+    }
+
     @Override
-    public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        if (convertView == null) {
-            LayoutInflater inflater = LayoutInflater.from(getContext());
-            convertView = inflater.inflate(R.layout.single_item_cell, null);
-        }
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View itemView = inflater.inflate(R.layout.single_item_cell, parent, false);
+        ViewHolder viewHolder = new ViewHolder(itemView);
+        return viewHolder;
+    }
 
-        final MediaPlayer mediaPlayer = MediaPlayer.create(getContext(), R.raw.notification_sound);
-
-        final Item item = getItem(position);
-        TextView itemNameTextView = (TextView) convertView.findViewById(R.id.item_name);
-        CheckBox deleteItemCheckbox = (CheckBox) convertView.findViewById(R.id.item_checkbox);
-        final ImageView isItemStarred = (ImageView) convertView.findViewById(R.id.item_star);
-
-
-        itemNameTextView.setText(item.itemName);
-        setStarIcon(item, isItemStarred);
-        // check box
-        deleteItemCheckbox.setOnCheckedChangeListener(null);
-        deleteItemCheckbox.setChecked(false);
-        deleteItemCheckbox.setTag(position);
-        deleteItemCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+    @Override
+    public void onBindViewHolder(final ViewHolder holder, int position) {
+        final Item item = items.get(position);
+        holder.itemNameTextView.setText(item.itemName);
+        holder.itemNameTextView.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton myCheckbox, boolean b) {
-                cancelAlarm(item.id);
-                mediaPlayer.start();
-                item.isItemDone = true;
-                dataManager.updateItem(item);
-                if (onItemDeletedListener != null) {
-                    onItemDeletedListener.onItemDeleted(item.id);
+            public void onClick(View view) {
+                if (onItemListener != null) {
+                    onItemListener.onItemClick(item.id);
                 }
             }
         });
 
-        isItemStarred.setOnClickListener(new View.OnClickListener() {
+        setStarIcon(item, holder.isItemStarred);
+
+
+        // check box
+        holder.doneItemCheckbox.setTag(position);
+        holder.doneItemCheckbox.setOnCheckedChangeListener(null);
+        holder.doneItemCheckbox.setChecked(false);
+        holder.doneItemCheckbox.setTag(position);
+        holder.doneItemCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View v) {
-                setStarIconWhenClicked(item, isItemStarred);
+            public void onCheckedChanged(CompoundButton myCheckbox, boolean b) {
+                int position = (int) myCheckbox.getTag();
+
+                cancelAlarm(item.id);
+                mediaPlayer.start();
+                item.isItemDone = true;
+                dataManager.updateItem(item);
+                if (onItemListener != null) {
+                    onItemListener.onItemDeleted(item.id);
+                }
             }
         });
 
-        return convertView;
+        holder.isItemStarred.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setStarIconWhenClicked(item, holder.isItemStarred);
+            }
+        });
+    }
+
+    @Override
+    public int getItemCount() {
+        return items.size();
     }
 
 
@@ -91,7 +121,6 @@ public class ShoppingListArrayAdapter extends ArrayAdapter<Item> {
     }
 
     public void setStarIconWhenClicked(Item item, ImageView isItemStarred) {
-        DataManager dataManager = DataManager.getInstance(getContext());
         if (item.isItemStarred == false) {
             isItemStarred.setImageResource(R.drawable.star_on);
             item.isItemStarred = true;
@@ -104,10 +133,10 @@ public class ShoppingListArrayAdapter extends ArrayAdapter<Item> {
     }
 
     public void cancelAlarm(long itemId) {
-        Intent myIntent = new Intent(getContext(), ReminderService.class);
+        Intent myIntent = new Intent(context, ReminderService.class);
         myIntent.putExtra(ITEM_ID, itemId);
-        AlarmManager alarmManager = (AlarmManager) getContext().getSystemService(ALARM_SERVICE);
-        PendingIntent pendingIntent = PendingIntent.getService(getContext(), (int) itemId, myIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
+        PendingIntent pendingIntent = PendingIntent.getService(context, (int) itemId, myIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         alarmManager.cancel(pendingIntent);
     }
