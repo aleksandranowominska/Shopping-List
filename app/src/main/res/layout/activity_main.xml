@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="true">
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="pl.ola.extrashoppinglist.MainActivity">
-
 
     <EditText
         android:id="@+id/add_item"
@@ -18,7 +21,6 @@
 
     <android.support.v7.widget.RecyclerView
         android:layout_below="@+id/add_item"
-        android:layout_above="@id/done_items_text_view"
         android:id="@+id/shopping_list_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -27,6 +29,7 @@
 
     <TextView
         android:id="@+id/done_items_text_view"
+        android:layout_below="@id/shopping_list_recycler_view"
         android:text="Done Items"
         android:textColor="@color/colorAccent"
         android:textSize="25dp"
@@ -45,3 +48,4 @@
         android:divider="@null"/>
 
 </RelativeLayout>
+</ScrollView>

@@ -75,6 +75,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         itemsRecyclerView = (RecyclerView) findViewById(R.id.shopping_list_recycler_view);
         doneItemsRecyclerView = (RecyclerView) findViewById(R.id.done_items_recycler_view);
 
+        doneItemsRecyclerView.setVisibility(View.GONE);
+
         ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT){
             @Override
             public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
@@ -182,6 +184,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         doneList.addAll(dataManager.getDoneItems());
         shoppingListArrayAdapter.notifyDataSetChanged();
         doneListArrayAdapter.notifyDataSetChanged();
+        if (doneList.size() > 0){
+            deletedItemsTextView.setVisibility(View.VISIBLE);
+        }
+        else {
+            deletedItemsTextView.setVisibility(View.GONE);
+        }
     }
 
     @Override
